@@ -1,45 +1,51 @@
 import type { AiParalegalClientConfig } from "./types";
 
+function isValidBaseUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" || parsed.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 export class AiParalegalClient {
   readonly baseUrl: string;
-  readonly apiKey?: string;
+  #apiKey?: string;
 
   constructor(config: AiParalegalClientConfig) {
     if (!config.baseUrl) {
       throw new Error("AiParalegalClient: baseUrl is required");
     }
 
+    if (!isValidBaseUrl(config.baseUrl)) {
+      throw new Error(
+        "AiParalegalClient: baseUrl must be a valid HTTP or HTTPS URL",
+      );
+    }
+
     this.baseUrl = config.baseUrl.replace(/\/+$/, "");
-    this.apiKey = config.apiKey;
+    this.#apiKey = config.apiKey;
   }
 
-  /**
-   * Build a full URL for the given API path.
-   */
   url(path: string): string {
     return `${this.baseUrl}${path}`;
   }
 
-  /**
-   * Return headers for API-key authenticated requests.
-   */
   headers(): Record<string, string> {
-    if (!this.apiKey) {
+    if (!this.#apiKey) {
       throw new Error(
         "AiParalegalClient: apiKey is required for API-key authenticated requests",
       );
     }
 
     return {
-      "X-API-KEY": this.apiKey,
+      "X-API-KEY": this.#apiKey,
       "Content-Type": "application/json",
       Accept: "application/json",
     };
   }
 
-  /**
-   * Return headers for session-token authenticated requests.
-   */
   sessionHeaders(sessionToken: string): Record<string, string> {
     return {
       Authorization: `Bearer ${sessionToken}`,

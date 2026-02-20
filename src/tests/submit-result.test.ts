@@ -84,7 +84,7 @@ describe("submitResult", () => {
 
     expect(postMessage).toHaveBeenCalledWith(
       { type: "sdk_app_result", result: mockApiResponse.result },
-      "*",
+      "https://example.com",
     );
   });
 
@@ -103,7 +103,7 @@ describe("submitResult", () => {
 
     expect(postMessage).toHaveBeenCalledWith(
       { type: "sdk_app_result", result: payload },
-      "*",
+      "https://example.com",
     );
   });
 

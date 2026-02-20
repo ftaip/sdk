@@ -21,11 +21,11 @@ export async function submitResult(
 
   const data: SubmitResultResponse = await response.json();
 
-  // Notify the parent window (admin preview or chat iframe host)
   if (window.parent !== window) {
+    const targetOrigin = new URL(client.baseUrl).origin;
     window.parent.postMessage(
       { type: "sdk_app_result", result: data.result ?? result },
-      "*",
+      targetOrigin,
     );
   }
 

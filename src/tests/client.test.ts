@@ -19,17 +19,29 @@ describe("AiParalegalClient", () => {
       expect(client.baseUrl).toBe("https://example.com");
     });
 
-    it("stores the apiKey when provided", () => {
+    it("does not expose apiKey as a public property", () => {
       const client = new AiParalegalClient({
         baseUrl: "https://example.com",
         apiKey: "sk-test",
       });
-      expect(client.apiKey).toBe("sk-test");
+      expect((client as Record<string, unknown>).apiKey).toBeUndefined();
     });
 
-    it("leaves apiKey undefined when not provided", () => {
-      const client = new AiParalegalClient({ baseUrl: "https://example.com" });
-      expect(client.apiKey).toBeUndefined();
+    it("rejects an invalid baseUrl", () => {
+      expect(
+        () => new AiParalegalClient({ baseUrl: "not-a-url" }),
+      ).toThrow("AiParalegalClient: baseUrl must be a valid HTTP or HTTPS URL");
+    });
+
+    it("rejects a non-HTTP protocol", () => {
+      expect(
+        () => new AiParalegalClient({ baseUrl: "ftp://example.com" }),
+      ).toThrow("AiParalegalClient: baseUrl must be a valid HTTP or HTTPS URL");
+    });
+
+    it("accepts an http baseUrl", () => {
+      const client = new AiParalegalClient({ baseUrl: "http://localhost:8000" });
+      expect(client.baseUrl).toBe("http://localhost:8000");
     });
   });
 

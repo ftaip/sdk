@@ -1,5 +1,5 @@
 {
-  "name": "@aiparalegal/sdk",
+  "name": "@ftaip/sdk",
   "version": "0.1.0",
   "description": "React SDK for AI Paralegal — AI-powered legal assistant integration",
   "type": "module",
@@ -54,6 +54,6 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aiparalegal/sdk"
+    "url": "https://github.com/ftaip/sdk"
   }
 }
