@@ -1,0 +1,25 @@
+# Ensure consistent line endings
+* text=auto eol=lf
+
+# Source files
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Mark generated/vendored files to exclude from diffs and language stats
+dist/** linguist-generated=true
+package-lock.json linguist-generated=true

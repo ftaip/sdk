@@ -50,9 +50,6 @@ export function useAskAI(
           const session = options as SessionContext;
           response = await askAiWithSession(client, session.sessionToken, {
             prompt,
-            load_matter_facts: (options as SessionContext).firmId
-              ? undefined
-              : undefined,
           });
         } else {
           const opts = options as AskAiOptions;
