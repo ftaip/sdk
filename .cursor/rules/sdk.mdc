@@ -1,0 +1,77 @@
+---
+description: Architecture, conventions, and patterns for the @aiparalegal/sdk package
+alwaysApply: true
+---
+
+# @aiparalegal/sdk
+
+TypeScript React SDK that lets third-party apps embed inside the AI Paralegal host as an iframe tool. Built with `tsup`, targets ES2020, peer dep on React 18+.
+
+## Package Layout
+
+```
+src/
+  client.ts          # AiParalegalClient — builds URLs and headers
+  types.ts           # All interfaces and types (single source of truth)
+  exchange-token.ts  # POST /api/sdk/v1/token/exchange
+  ask-ai.ts          # POST /api/sdk/v1/ai/ask (two auth modes)
+  submit-result.ts   # POST /api/sdk/v1/result + postMessage to parent
+  hooks/
+    use-session.ts      # Token exchange + session lifecycle
+    use-ask-ai.ts       # AI prompt hook
+    use-submit-result.ts # Result submission hook
+  index.ts           # Public exports only
+```
+
+## Auth Flow
+
+The host (AI Paralegal admin) loads the client app in an iframe with three URL params:
+
+```
+?token=<exchange_token>&baseUrl=<host_origin>&apiKey=<sdk_api_key>
+```
+
+`useSession({})` reads all three from `window.location.search` automatically — **never hardcode the API key**. Developers can override any param via config for local development:
+
+```ts
+// Production — zero config needed, host injects everything
+const { session, client } = useSession({});
+
+// Local dev override
+const { session, client } = useSession({ apiKey: '...', baseUrl: 'http://localhost:8000' });
+```
+
+## Two Auth Modes on the API
+
+| Mode | Header | When used |
+|------|--------|-----------|
+| API key | `X-API-KEY` | `client.headers()` — before token exchange |
+| Session token | `Authorization: Bearer` | `client.sessionHeaders(token)` — after exchange |
+
+`client.headers()` throws if `apiKey` is not set. `client.sessionHeaders()` never needs an API key.
+
+## Adding a New API Function
+
+1. Add request/response types to `src/types.ts`
+2. Create `src/my-action.ts` with a plain async function (takes `client`, returns typed response)
+3. Create `src/hooks/use-my-action.ts` wrapping it with `useState` + `useCallback`
+4. Export both from `src/index.ts`
+5. Run `npm run build` — the `dist/` output is what consumers import
+
+## Key Conventions
+
+- All types live in `types.ts`. Never define types inline in function files.
+- Plain functions (`exchange-token.ts`, `ask-ai.ts`, `submit-result.ts`) are framework-agnostic. Hooks are React-specific wrappers.
+- `submitResult` always `postMessage`s to `window.parent` with `{ type: 'sdk_app_result', result }` — do not remove this.
+- After any source change, run `npm run build` in the SDK **and** `npm run build` in any consumer app (e.g. `aiparalegalsdkexample`) since they depend on `dist/`.
+- Error responses from the host follow `{ message: string }` — always extract `.message` from failed responses.
+
+## Host API Endpoints
+
+Base: `<baseUrl>/api/sdk/v1`
+
+| Endpoint | Auth | Purpose |
+|----------|------|---------|
+| `POST /token/exchange` | API key | Exchange short-lived token for session token |
+| `POST /ai/ask` | API key or session | Ask the AI about the current matter |
+| `POST /result` | Session | Submit tool result back to the agent |
