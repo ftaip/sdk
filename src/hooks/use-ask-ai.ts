@@ -5,7 +5,7 @@ import type {
   AskAiOptions,
   AskAiResponse,
   SessionContext,
-  UseAskAiReturn,
+  UseAskMatterAiReturn,
 } from "../types";
 
 /**
@@ -15,19 +15,19 @@ import type {
  *
  * 1. **API key + explicit firm/matter** (original):
  *    ```tsx
- *    const { ask } = useAskAI(client, { firmId: '...', matterId: '...' });
+ *    const { ask } = useAskMatterAI(client, { firmId: '...', matterId: '...' });
  *    ```
  *
  * 2. **Session token** (from token exchange):
  *    ```tsx
  *    const { session } = useSession(client);
- *    const { ask } = useAskAI(client, session);
+ *    const { ask } = useAskMatterAI(client, session);
  *    ```
  */
-export function useAskAI(
+export function useAskMatterAI(
   client: AiParalegalClient,
   options: AskAiOptions | SessionContext,
-): UseAskAiReturn {
+): UseAskMatterAiReturn {
   const [data, setData] = useState<AskAiResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);

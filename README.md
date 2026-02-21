@@ -16,7 +16,7 @@ npm install @ftaip/sdk
 When your app is loaded inside the AI Paralegal admin, the host injects `token`, `baseUrl`, and `apiKey` as URL query parameters. The `useSession` hook reads them automatically — zero config needed:
 
 ```tsx
-import { useSession, useAskAI, useSubmitResult } from "@ftaip/sdk";
+import { useSession, useAskMatterAI, useSubmitResult } from "@ftaip/sdk";
 
 function App() {
   const { session, client, loading, error } = useSession({});
@@ -36,7 +36,7 @@ function App() {
 The host loads your app in an iframe with `?token=<exchange_token>&baseUrl=<host_origin>&apiKey=<sdk_api_key>`. The `useSession` hook handles everything:
 
 ```tsx
-import { useSession, useAskAI } from "@ftaip/sdk";
+import { useSession, useAskMatterAI } from "@ftaip/sdk";
 import type { AiParalegalClient, SessionContext } from "@ftaip/sdk";
 
 function App() {
@@ -56,7 +56,7 @@ function AskPanel({
   session: SessionContext;
   client: AiParalegalClient;
 }) {
-  const { ask, data, loading, error } = useAskAI(client, session);
+  const { ask, data, loading, error } = useAskMatterAI(client, session);
 
   return (
     <div>
@@ -84,7 +84,7 @@ const { session, client } = useSession({
 For server-side usage or when you manage firm/matter context yourself:
 
 ```tsx
-import { AiParalegalClient, useAskAI } from "@ftaip/sdk";
+import { AiParalegalClient, useAskMatterAI } from "@ftaip/sdk";
 
 const client = new AiParalegalClient({
   baseUrl: "https://your-aiparalegal-instance.com",
@@ -92,7 +92,7 @@ const client = new AiParalegalClient({
 });
 
 function AskAI() {
-  const { ask, data, loading, error, reset } = useAskAI(client, {
+  const { ask, data, loading, error, reset } = useAskMatterAI(client, {
     firmId: "firm-uuid",
     matterId: "matter-uuid",
     loadMatterFacts: true,
@@ -235,7 +235,7 @@ Automatically reads `token`, `baseUrl`, and `apiKey` from the URL and exchanges 
 
 **Returns:** `{ session, client, loading, error }`
 
-### `useAskAI(client, options)`
+### `useAskMatterAI(client, options)`
 
 React hook for sending prompts to the AI. Accepts either `AskAiOptions` (API key mode) or `SessionContext` (session mode).
 

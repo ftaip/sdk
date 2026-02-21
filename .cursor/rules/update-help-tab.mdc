@@ -1,0 +1,35 @@
+---
+description: When a new hook is added to the SDK, update the developer help tab in the host app
+globs: src/hooks/use-*.ts, src/index.ts
+alwaysApply: false
+---
+
+# Update SDK Help Tab When Adding Hooks
+
+When you add a new hook to the SDK (a new file in `src/hooks/use-*.ts` and its export in `src/index.ts`), you **must** also update the developer help documentation in the host application.
+
+## What to Update
+
+**File:** `/Users/dale.hurley/Herd/aiparalegal/resources/js/pages/Admin/SdkApplications/SdkHelpTab.tsx`
+
+### 1. Add a row to the "Available SDK Hooks" table
+
+Find the `<tbody>` inside the `hooks` accordion section and add a new `<tr>` for the hook:
+
+```tsx
+<tr>
+    <td className="py-2.5 pr-4 font-mono text-xs text-blue-600 dark:text-blue-400">useNewHook</td>
+    <td className="py-2.5 pr-4">Brief description of what the hook does</td>
+    <td className="py-2.5 font-mono text-xs">methodName(args)</td>
+</tr>
+```
+
+### 2. Optionally add a usage example
+
+If the hook introduces a new capability pattern, add an example code block below the table similar to the existing `useLLM` example.
+
+## Checklist
+
+- [ ] New row added to the hooks table in `SdkHelpTab.tsx`
+- [ ] Hook name, description, and key methods are accurate
+- [ ] Build the host app to verify no TypeScript errors

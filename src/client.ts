@@ -53,4 +53,15 @@ export class AiParalegalClient {
       Accept: "application/json",
     };
   }
+
+  /**
+   * Headers for multipart/form-data requests (no Content-Type — the browser
+   * sets it automatically with the correct boundary).
+   */
+  multipartSessionHeaders(sessionToken: string): Record<string, string> {
+    return {
+      Authorization: `Bearer ${sessionToken}`,
+      Accept: "application/json",
+    };
+  }
 }

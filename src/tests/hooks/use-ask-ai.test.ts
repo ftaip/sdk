@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useAskAI } from "../../hooks/use-ask-ai";
+import { useAskMatterAI } from "../../hooks/use-ask-ai";
 import * as askAiModule from "../../ask-ai";
 import { AiParalegalClient } from "../../client";
 import type { SessionContext } from "../../types";
@@ -31,11 +31,11 @@ beforeEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("useAskAI", () => {
+describe("useAskMatterAI", () => {
   describe("initial state", () => {
     it("starts with null data, false loading, null error", () => {
       const { result } = renderHook(() =>
-        useAskAI(client, { firmId: "f", matterId: "m" }),
+        useAskMatterAI(client, { firmId: "f", matterId: "m" }),
       );
 
       expect(result.current.data).toBeNull();
@@ -51,7 +51,7 @@ describe("useAskAI", () => {
         .mockResolvedValueOnce(mockResponse);
 
       const { result } = renderHook(() =>
-        useAskAI(client, { firmId: "firm-1", matterId: "matter-1" }),
+        useAskMatterAI(client, { firmId: "firm-1", matterId: "matter-1" }),
       );
 
       await act(async () => {
@@ -72,7 +72,7 @@ describe("useAskAI", () => {
         .mockResolvedValueOnce(mockResponse);
 
       const { result } = renderHook(() =>
-        useAskAI(client, {
+        useAskMatterAI(client, {
           firmId: "firm-1",
           matterId: "matter-1",
           loadMatterFacts: true,
@@ -93,7 +93,7 @@ describe("useAskAI", () => {
       vi.spyOn(askAiModule, "askAi").mockResolvedValueOnce(mockResponse);
 
       const { result } = renderHook(() =>
-        useAskAI(client, { firmId: "f", matterId: "m" }),
+        useAskMatterAI(client, { firmId: "f", matterId: "m" }),
       );
 
       await act(async () => {
@@ -110,7 +110,7 @@ describe("useAskAI", () => {
       );
 
       const { result } = renderHook(() =>
-        useAskAI(client, { firmId: "f", matterId: "m" }),
+        useAskMatterAI(client, { firmId: "f", matterId: "m" }),
       );
 
       await act(async () => {
@@ -125,7 +125,7 @@ describe("useAskAI", () => {
       vi.spyOn(askAiModule, "askAi").mockRejectedValueOnce("bad string");
 
       const { result } = renderHook(() =>
-        useAskAI(client, { firmId: "f", matterId: "m" }),
+        useAskMatterAI(client, { firmId: "f", matterId: "m" }),
       );
 
       await act(async () => {
@@ -144,7 +144,7 @@ describe("useAskAI", () => {
         .mockResolvedValueOnce(mockResponse);
 
       const { result } = renderHook(() =>
-        useAskAI(client, sessionContext),
+        useAskMatterAI(client, sessionContext),
       );
 
       await act(async () => {
@@ -162,7 +162,7 @@ describe("useAskAI", () => {
         mockResponse,
       );
 
-      const { result } = renderHook(() => useAskAI(client, sessionContext));
+      const { result } = renderHook(() => useAskMatterAI(client, sessionContext));
 
       await act(async () => {
         await result.current.ask("Q?");
@@ -176,7 +176,7 @@ describe("useAskAI", () => {
         new Error("Session expired"),
       );
 
-      const { result } = renderHook(() => useAskAI(client, sessionContext));
+      const { result } = renderHook(() => useAskMatterAI(client, sessionContext));
 
       await act(async () => {
         await result.current.ask("Q?");
@@ -191,7 +191,7 @@ describe("useAskAI", () => {
       vi.spyOn(askAiModule, "askAi").mockResolvedValueOnce(mockResponse);
 
       const { result } = renderHook(() =>
-        useAskAI(client, { firmId: "f", matterId: "m" }),
+        useAskMatterAI(client, { firmId: "f", matterId: "m" }),
       );
 
       await act(async () => {
@@ -216,7 +216,7 @@ describe("useAskAI", () => {
       vi.spyOn(askAiModule, "askAi").mockRejectedValueOnce(abortError);
 
       const { result } = renderHook(() =>
-        useAskAI(client, { firmId: "f", matterId: "m" }),
+        useAskMatterAI(client, { firmId: "f", matterId: "m" }),
       );
 
       await act(async () => {
@@ -238,7 +238,7 @@ describe("useAskAI", () => {
         .mockResolvedValueOnce(mockResponse);
 
       const { result } = renderHook(() =>
-        useAskAI(client, { firmId: "f", matterId: "m" }),
+        useAskMatterAI(client, { firmId: "f", matterId: "m" }),
       );
 
       act(() => {
