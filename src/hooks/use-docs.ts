@@ -7,6 +7,7 @@ import {
   updateDoc,
   deleteDoc,
   docToMarkdown,
+  downloadDoc,
 } from "../docs";
 import type { AiParalegalClient } from "../client";
 import type {
@@ -20,17 +21,17 @@ import type {
 
 /**
  * React hook for full document management — upload, list, read, edit,
- * delete, and convert to Markdown (via MarkItDown).
+ * delete, download, and convert to Markdown (via MarkItDown).
  *
  * ```tsx
  * const docs = useDocs(client, session);
  *
  * // Create a Word doc from markdown
- * await docs.create({ markdown: '# Hello', filename: 'letter', format: 'docx' });
+ * const meta = await docs.create({ markdown: '# Hello', filename: 'letter', format: 'docx' });
  *
  * await docs.upload([wordFile, pdfFile]);
  * await docs.list();
- * // docs.documents => [{ id, filename, mime_type, size, created_at, updated_at }]
+ * // docs.documents => [{ id, filename, mime_type, size, download_url, created_at, updated_at }]
  *
  * await docs.get(id);
  * // docs.document => { ...meta, content }
@@ -40,6 +41,8 @@ import type {
  *
  * await docs.toMarkdown(id);
  * // docs.markdown => { id, filename, markdown, mime_type }
+ *
+ * await docs.download(id); // triggers browser file download
  *
  * await docs.remove(id);
  * ```
@@ -78,11 +81,12 @@ export function useDocs(
   );
 
   const create = useCallback(
-    async (options: DocCreateOptions) => {
+    async (options: DocCreateOptions): Promise<DocMeta | undefined> => {
       const { client: c, session: s } = requireSession();
-      await run(async () => {
+      return run(async () => {
         const response = await createDoc(c, s.sessionToken, options);
         setDocuments((prev) => [...prev, response.data]);
+        return response.data;
       });
     },
     [requireSession, run],
@@ -164,6 +168,16 @@ export function useDocs(
     [requireSession, run],
   );
 
+  const download = useCallback(
+    async (documentId: string) => {
+      const { client: c, session: s } = requireSession();
+      await run(async () => {
+        await downloadDoc(c, s.sessionToken, documentId);
+      });
+    },
+    [requireSession, run],
+  );
+
   const reset = useCallback(() => {
     setDocuments([]);
     setDocument(null);
@@ -180,6 +194,7 @@ export function useDocs(
     update,
     remove,
     toMarkdown: toMarkdownAction,
+    download,
     documents,
     document,
     markdown,

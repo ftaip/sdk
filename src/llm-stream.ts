@@ -1,5 +1,5 @@
 import type { AiParalegalClient } from "./client";
-import type { LlmRequestOptions, LlmStreamCallbacks } from "./types";
+import type { LlmRequestOptions, LlmResponse, LlmStreamCallbacks } from "./types";
 import { consumeSseStream } from "./sse";
 
 /**
@@ -40,6 +40,9 @@ export async function streamLlm(
     if (options?.maxTokens !== undefined) {
       formData.append("max_tokens", String(options.maxTokens));
     }
+    if (options?.schema) {
+      formData.append("schema", JSON.stringify(options.schema));
+    }
 
     for (const file of attachments) {
       formData.append("attachments[]", file);
@@ -68,6 +71,7 @@ export async function streamLlm(
         model: options?.model,
         temperature: options?.temperature,
         max_tokens: options?.maxTokens,
+        schema: options?.schema,
       }),
       signal,
     });
@@ -79,6 +83,14 @@ export async function streamLlm(
       (body as { message?: string }).message ??
         `LLM stream failed with status ${response.status}`,
     );
+  }
+
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
+    const json = (await response.json()) as LlmResponse;
+    callbacks?.onChunk?.(json.data.text);
+    callbacks?.onComplete?.(json);
+    return;
   }
 
   await consumeSseStream(

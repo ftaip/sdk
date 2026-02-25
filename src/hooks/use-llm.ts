@@ -33,6 +33,9 @@ export function useLLM(
 ): UseLlmReturn {
   const [data, setData] = useState<LlmResponse | null>(null);
   const [text, setText] = useState("");
+  const [structured, setStructured] = useState<Record<string, unknown> | null>(
+    null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -54,10 +57,11 @@ export function useLLM(
       setLoading(true);
       setError(null);
       setText("");
+      setStructured(null);
       setData(null);
 
       try {
-        if (options?.stream) {
+        if (options?.stream && !options?.schema) {
           await streamLlm(
             client,
             session.sessionToken,
@@ -70,6 +74,9 @@ export function useLLM(
               },
               onComplete: (response) => {
                 setData(response);
+                if (response.data.structured) {
+                  setStructured(response.data.structured);
+                }
               },
               onError: (err) => {
                 setError(err);
@@ -87,6 +94,9 @@ export function useLLM(
           );
           setData(response);
           setText(response.data.text);
+          if (response.data.structured) {
+            setStructured(response.data.structured);
+          }
         }
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") {
@@ -104,9 +114,10 @@ export function useLLM(
     abortRef.current?.abort();
     setData(null);
     setText("");
+    setStructured(null);
     setLoading(false);
     setError(null);
   }, []);
 
-  return { generate, data, text, loading, error, reset };
+  return { generate, data, text, structured, loading, error, reset };
 }

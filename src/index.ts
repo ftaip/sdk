@@ -15,6 +15,7 @@ export {
   updateDoc,
   deleteDoc,
   docToMarkdown,
+  downloadDoc,
 } from "./docs";
 export { convertToMarkdown } from "./markitdown";
 export { useAskMatterAI } from "./hooks/use-ask-ai";

@@ -104,6 +104,7 @@ export interface LlmRequestOptions {
   temperature?: number;
   maxTokens?: number;
   stream?: boolean;
+  schema?: Record<string, unknown>;
 }
 
 export interface LlmUsage {
@@ -113,6 +114,7 @@ export interface LlmUsage {
 
 export interface LlmResponseData {
   text: string;
+  structured?: Record<string, unknown>;
   usage?: LlmUsage;
 }
 
@@ -134,6 +136,7 @@ export interface UseLlmReturn {
   ) => Promise<void>;
   data: LlmResponse | null;
   text: string;
+  structured: Record<string, unknown> | null;
   loading: boolean;
   error: Error | null;
   reset: () => void;
@@ -214,6 +217,7 @@ export interface DocMeta {
   filename: string;
   mime_type: string;
   size: number;
+  download_url: string;
   created_at: string;
   updated_at: string;
 }
@@ -248,7 +252,7 @@ export interface DocUpdateResponse {
 export interface DocCreateOptions {
   markdown: string;
   filename: string;
-  format?: "docx" | "html" | "txt" | "md";
+  format?: "docx" | "html" | "txt" | "md" | "xlsx";
 }
 
 export interface DocCreateResponse {
@@ -260,13 +264,14 @@ export interface DocMarkdownResponse {
 }
 
 export interface UseDocsReturn {
-  create: (options: DocCreateOptions) => Promise<void>;
+  create: (options: DocCreateOptions) => Promise<DocMeta | undefined>;
   upload: (files: File[]) => Promise<void>;
   list: () => Promise<void>;
   get: (documentId: string) => Promise<void>;
   update: (documentId: string, fileOrContent: File | string) => Promise<void>;
   remove: (documentId: string) => Promise<void>;
   toMarkdown: (documentId: string) => Promise<void>;
+  download: (documentId: string) => Promise<void>;
   documents: DocMeta[];
   document: DocDetail | null;
   markdown: DocMarkdown | null;

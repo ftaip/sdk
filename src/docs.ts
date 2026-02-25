@@ -9,7 +9,7 @@ import type {
   DocsListResponse,
 } from "./types";
 
-async function handleResponse<T>(response: Response, action: string): Promise<T> {
+async function throwOnError(response: Response, action: string): Promise<void> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     throw new Error(
@@ -17,7 +17,10 @@ async function handleResponse<T>(response: Response, action: string): Promise<T>
         `${action} failed with status ${response.status}`,
     );
   }
+}
 
+async function handleResponse<T>(response: Response, action: string): Promise<T> {
+  await throwOnError(response, action);
   return response.json() as Promise<T>;
 }
 
@@ -118,13 +121,44 @@ export async function deleteDoc(
     headers: client.sessionHeaders(sessionToken),
   });
 
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Document delete failed with status ${response.status}`,
-    );
+  await throwOnError(response, "Document delete");
+}
+
+export async function downloadDoc(
+  client: AiParalegalClient,
+  sessionToken: string,
+  documentId: string,
+): Promise<void> {
+  if (typeof document === "undefined") {
+    throw new Error("downloadDoc requires a browser environment");
   }
+
+  const response = await fetch(
+    client.url(`/api/sdk/v1/docs/${documentId}/download`),
+    {
+      method: "GET",
+      headers: {
+        ...client.sessionHeaders(sessionToken),
+        Accept: "*/*",
+      },
+    },
+  );
+
+  await throwOnError(response, "Document download");
+
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const filenameMatch = disposition.match(/filename[^;=\n]*=["']?([^"'\n;]+)/i);
+  const filename = filenameMatch?.[1]?.trim() ?? `document-${documentId}`;
+
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 export async function docToMarkdown(

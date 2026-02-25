@@ -35,6 +35,9 @@ export async function askLlm(
     if (options?.maxTokens !== undefined) {
       formData.append("max_tokens", String(options.maxTokens));
     }
+    if (options?.schema) {
+      formData.append("schema", JSON.stringify(options.schema));
+    }
 
     for (const file of attachments) {
       formData.append("attachments[]", file);
@@ -56,6 +59,7 @@ export async function askLlm(
         model: options?.model,
         temperature: options?.temperature,
         max_tokens: options?.maxTokens,
+        schema: options?.schema,
       }),
     });
   }
