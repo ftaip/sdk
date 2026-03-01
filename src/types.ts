@@ -402,3 +402,327 @@ export interface UseDictationReturn {
   error: Error | null;
   reset: () => void;
 }
+
+// ---------------------------------------------------------------------------
+// Collections
+// ---------------------------------------------------------------------------
+
+export interface CollectionMeta {
+  id: string;
+  name: string;
+  description: string | null;
+  document_count: number;
+  processed_count: number;
+  failed_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CollectionDocument {
+  id: string;
+  filename: string;
+  mime_type: string;
+  size: number;
+  status: "pending" | "processing" | "processed" | "failed";
+  error?: string | null;
+  created_at: string;
+  extracted_at?: string | null;
+  extraction?: DocumentExtraction | null;
+}
+
+export interface DocumentExtraction {
+  parties: string[];
+  effective_date: string | null;
+  expiration_date: string | null;
+  governing_law: string | null;
+  term_months: number | null;
+  monetary_amounts: Array<{
+    amount: number;
+    currency: string;
+    context: string;
+  }>;
+  risk_flags: Array<{
+    type: string;
+    description: string;
+    severity: "low" | "medium" | "high" | "critical";
+  }>;
+  document_type: string | null;
+  summary: string;
+  key_clauses: Array<{ name: string; text: string }>;
+  confidence_score: number;
+}
+
+export interface CollectionListResponse {
+  data: { collections: CollectionMeta[] };
+}
+
+export interface CollectionShowResponse {
+  data: CollectionMeta & { documents: CollectionDocument[] };
+}
+
+export interface CollectionDocumentUploadResponse {
+  data: CollectionDocument[];
+}
+
+// ---------------------------------------------------------------------------
+// Collection Search & Query
+// ---------------------------------------------------------------------------
+
+export interface CollectionSearchResult {
+  document_id: string;
+  filename: string;
+  score: number;
+  excerpt: string;
+  extraction: Partial<DocumentExtraction> | null;
+}
+
+export interface CollectionSearchResponse {
+  data: {
+    query: string;
+    total: number;
+    results: CollectionSearchResult[];
+  };
+}
+
+export interface CollectionQueryCitation {
+  document_id: string;
+  filename: string;
+  excerpt: string;
+}
+
+export interface CollectionQueryResponse {
+  data: {
+    answer: string;
+    citations: CollectionQueryCitation[];
+    documents_searched: number;
+    documents_cited: number;
+  };
+}
+
+export interface CollectionQueryStreamCallbacks {
+  onChunk?: (delta: string) => void;
+  onStage?: (stage: string, message: string) => void;
+  onComplete?: (response: CollectionQueryResponse) => void;
+  onError?: (error: Error) => void;
+}
+
+// ---------------------------------------------------------------------------
+// Collection Table
+// ---------------------------------------------------------------------------
+
+export interface CollectionTableCell {
+  value: string;
+  confidence: number;
+  is_missing: boolean;
+}
+
+export interface CollectionTableRow {
+  document_id: string;
+  filename: string;
+  cells: Record<string, CollectionTableCell>;
+}
+
+export interface CollectionTableResponse {
+  data: {
+    columns: string[];
+    rows: CollectionTableRow[];
+    csv: string;
+    markdown: string;
+    generated_at: string;
+    document_count: number;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Collection Analyze
+// ---------------------------------------------------------------------------
+
+export interface CollectionAnalyzeResponse {
+  data: {
+    analysis: string;
+    statistics: Record<string, unknown>;
+  };
+}
+
+export interface CollectionAnalyzeStreamCallbacks {
+  onChunk?: (delta: string) => void;
+  onStage?: (stage: string, message: string) => void;
+  onComplete?: (response: CollectionAnalyzeResponse) => void;
+  onError?: (error: Error) => void;
+}
+
+// ---------------------------------------------------------------------------
+// Collection Hook Returns
+// ---------------------------------------------------------------------------
+
+export interface UseCollectionsReturn {
+  collections: CollectionMeta[];
+  loading: boolean;
+  error: Error | null;
+  refresh: () => Promise<void>;
+  create: (name: string, description?: string) => Promise<CollectionMeta | undefined>;
+  remove: (collectionId: string) => Promise<void>;
+  updateOne: (id: string, patch: Partial<CollectionMeta>) => void;
+}
+
+export interface UseCollectionReturn {
+  collection: (CollectionMeta & { documents: CollectionDocument[] }) | null;
+  loading: boolean;
+  error: Error | null;
+  refresh: () => Promise<void>;
+  uploadDocuments: (files: File[]) => Promise<CollectionDocument[] | undefined>;
+  removeDocument: (documentId: string) => Promise<void>;
+  reprocessDocument: (documentId: string) => Promise<void>;
+}
+
+export interface UseCollectionSearchReturn {
+  search: (query: string, filters?: Record<string, string>) => Promise<void>;
+  results: CollectionSearchResult[];
+  total: number;
+  loading: boolean;
+  error: Error | null;
+}
+
+export interface UseCollectionQueryReturn {
+  query: (
+    prompt: string,
+    opts?: { maxDocuments?: number; stream?: boolean; instructions?: string },
+  ) => Promise<void>;
+  answer: string;
+  citations: CollectionQueryCitation[];
+  loading: boolean;
+  streaming: boolean;
+  error: Error | null;
+  reset: () => void;
+}
+
+export interface UseCollectionTableReturn {
+  generate: (
+    prompt: string,
+    opts?: {
+      format?: "json" | "csv" | "markdown";
+      documentIds?: string[];
+      instructions?: string;
+    },
+  ) => Promise<void>;
+  table: CollectionTableResponse["data"] | null;
+  loading: boolean;
+  error: Error | null;
+}
+
+// ---------------------------------------------------------------------------
+// Contract Review
+// ---------------------------------------------------------------------------
+
+export interface ContractReviewResult {
+  summary: {
+    document_type: string;
+    governing_law: string;
+    term: string;
+    effective_date: string | null;
+    expiration_date: string | null;
+  };
+  parties: Array<{ name: string; role: string }>;
+  key_dates: Array<{ date: string; description: string }>;
+  obligations: Array<{
+    party: string;
+    obligation: string;
+    clause_ref: string;
+  }>;
+  risk_flags: Array<{
+    severity: "low" | "medium" | "high" | "critical";
+    title: string;
+    description: string;
+    clause_ref: string;
+  }>;
+  missing_clauses: Array<{
+    clause_name: string;
+    importance: "required" | "recommended" | "optional";
+    description: string;
+  }>;
+  deviations: Array<{
+    clause: string;
+    standard_position: string;
+    actual_position: string;
+    risk: "low" | "medium" | "high";
+  }>;
+  overall_risk_rating: "low" | "medium" | "high" | "critical";
+  recommended_actions: Array<{
+    action: string;
+    priority: "immediate" | "before_signing" | "post_execution";
+  }>;
+  filename: string;
+  contract_type: string;
+  reviewed_at: string;
+}
+
+export interface ContractReviewResponse {
+  data: ContractReviewResult;
+}
+
+export type ContractReviewStage =
+  | "idle"
+  | "extracting"
+  | "reviewing"
+  | "complete"
+  | "error";
+
+export interface ContractReviewStreamCallbacks {
+  onStage?: (stage: ContractReviewStage, message: string) => void;
+  onComplete?: (result: ContractReviewResult) => void;
+  onError?: (error: Error) => void;
+}
+
+export interface UseContractReviewReturn {
+  review: (
+    file: File,
+    opts?: {
+      contractType?: string;
+      ourPartyName?: string;
+      jurisdiction?: string;
+      playbook?: string;
+      instructions?: string;
+      stream?: boolean;
+    },
+  ) => Promise<void>;
+  stage: ContractReviewStage;
+  result: ContractReviewResult | null;
+  loading: boolean;
+  error: Error | null;
+  reset: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Collection Suggested Prompts
+// ---------------------------------------------------------------------------
+
+export type CollectionSuggestedPrompts = Record<string, string[]>;
+
+export interface SuggestedPromptsRequest {
+  instructions: string;
+  categories: string[];
+  prompts_per_category?: number;
+}
+
+export interface CollectionSuggestedPromptsResponse {
+  data: CollectionSuggestedPrompts;
+}
+
+export interface UseSuggestedPromptsReturn {
+  prompts: CollectionSuggestedPrompts | null;
+  loading: boolean;
+  error: Error | null;
+}
+
+export interface UseCollectionAnalyzeReturn {
+  analyze: (
+    prompt: string,
+    opts?: { stream?: boolean; instructions?: string },
+  ) => Promise<void>;
+  analysis: string;
+  statistics: Record<string, unknown> | null;
+  loading: boolean;
+  streaming: boolean;
+  error: Error | null;
+  reset: () => void;
+}

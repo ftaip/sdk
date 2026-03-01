@@ -18,6 +18,28 @@ export {
   downloadDoc,
 } from "./docs";
 export { convertToMarkdown } from "./markitdown";
+export {
+  createCollection,
+  listCollections,
+  getCollection,
+  updateCollection,
+  deleteCollection,
+  uploadCollectionDocuments,
+  listCollectionDocuments,
+  getCollectionDocument,
+  deleteCollectionDocument,
+  reprocessCollectionDocument,
+  searchCollection,
+  queryCollection,
+  generateCollectionTable,
+  analyzeCollection,
+  getSuggestedPrompts,
+} from "./collections";
+export {
+  streamCollectionQuery,
+  streamCollectionAnalysis,
+} from "./collection-stream";
+export { reviewContract, streamContractReview } from "./contract-review";
 export { transcribeAudio } from "./transcribe";
 export { streamTranscribe } from "./transcribe-stream";
 export { textToSpeech } from "./tts";
@@ -33,6 +55,14 @@ export { useMarkItDown } from "./hooks/use-markitdown";
 export { useTranscribe } from "./hooks/use-transcribe";
 export { useTextToSpeech } from "./hooks/use-tts";
 export { useDictation } from "./hooks/use-dictation";
+export { useCollections } from "./hooks/use-collections";
+export { useCollection } from "./hooks/use-collection";
+export { useCollectionSearch } from "./hooks/use-collection-search";
+export { useCollectionQuery } from "./hooks/use-collection-query";
+export { useCollectionTable } from "./hooks/use-collection-table";
+export { useCollectionAnalyze } from "./hooks/use-collection-analyze";
+export { useSuggestedPrompts } from "./hooks/use-suggested-prompts";
+export { useContractReview } from "./hooks/use-contract-review";
 export type {
   AiParalegalClientConfig,
   AskAiOptions,
@@ -91,4 +121,35 @@ export type {
   DictationCallbacks,
   DictateChunkResponse,
   UseDictationReturn,
+  CollectionMeta,
+  CollectionDocument,
+  DocumentExtraction,
+  CollectionListResponse,
+  CollectionShowResponse,
+  CollectionDocumentUploadResponse,
+  CollectionSearchResult,
+  CollectionSearchResponse,
+  CollectionQueryCitation,
+  CollectionQueryResponse,
+  CollectionQueryStreamCallbacks,
+  CollectionTableRow,
+  CollectionTableResponse,
+  CollectionAnalyzeResponse,
+  CollectionAnalyzeStreamCallbacks,
+  UseCollectionsReturn,
+  UseCollectionReturn,
+  UseCollectionSearchReturn,
+  UseCollectionQueryReturn,
+  UseCollectionTableReturn,
+  UseCollectionAnalyzeReturn,
+  CollectionSuggestedPrompts,
+  CollectionSuggestedPromptsResponse,
+  SuggestedPromptsRequest,
+  UseSuggestedPromptsReturn,
+  CollectionTableCell,
+  ContractReviewResult,
+  ContractReviewResponse,
+  ContractReviewStage,
+  ContractReviewStreamCallbacks,
+  UseContractReviewReturn,
 } from "./types";
