@@ -305,3 +305,100 @@ export interface UseMarkItDownReturn {
   error: Error | null;
   reset: () => void;
 }
+
+// ---------------------------------------------------------------------------
+// Transcription (Speech-to-Text)
+// ---------------------------------------------------------------------------
+
+export type TranscribeMode = "verbatim" | "clean";
+
+export interface TranscribeOptions {
+  mode?: TranscribeMode;
+  provider?: string;
+  model?: string;
+  language?: string;
+  diarize?: boolean;
+}
+
+export interface TranscribeResponseData {
+  text: string;
+  mode: TranscribeMode;
+  diarized: boolean;
+}
+
+export interface TranscribeResponse {
+  data: TranscribeResponseData;
+}
+
+export interface TranscribeStreamCallbacks {
+  onTranscribing?: (filename: string) => void;
+  onTranscribed?: (text: string) => void;
+  onComplete?: (response: TranscribeResponse) => void;
+  onError?: (error: Error) => void;
+}
+
+export interface UseTranscribeReturn {
+  transcribe: (file: File, options?: TranscribeOptions) => Promise<void>;
+  data: TranscribeResponse | null;
+  text: string;
+  loading: boolean;
+  error: Error | null;
+  reset: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Text-to-Speech (TTS)
+// ---------------------------------------------------------------------------
+
+export interface TtsOptions {
+  provider?: string;
+  model?: string;
+  voice?: string;
+  instructions?: string;
+}
+
+export interface UseTtsReturn {
+  speak: (text: string, options?: TtsOptions) => Promise<void>;
+  audioUrl: string | null;
+  playing: boolean;
+  loading: boolean;
+  error: Error | null;
+  stop: () => void;
+  reset: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Dictation (real-time microphone -> text via server)
+// ---------------------------------------------------------------------------
+
+export interface DictationOptions {
+  mode?: TranscribeMode;
+  provider?: string;
+  model?: string;
+  language?: string;
+  chunkIntervalMs?: number;
+}
+
+export interface DictationCallbacks {
+  onChunkSent?: () => void;
+  onTranscript?: (text: string, accumulated: string) => void;
+  onError?: (error: Error) => void;
+}
+
+export interface DictateChunkResponse {
+  data: {
+    text: string;
+    mode: TranscribeMode;
+    is_final: boolean;
+  };
+}
+
+export interface UseDictationReturn {
+  start: (options?: DictationOptions, callbacks?: DictationCallbacks) => Promise<void>;
+  stop: () => void;
+  transcript: string;
+  isRecording: boolean;
+  loading: boolean;
+  error: Error | null;
+  reset: () => void;
+}

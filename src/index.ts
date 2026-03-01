@@ -18,6 +18,10 @@ export {
   downloadDoc,
 } from "./docs";
 export { convertToMarkdown } from "./markitdown";
+export { transcribeAudio } from "./transcribe";
+export { streamTranscribe } from "./transcribe-stream";
+export { textToSpeech } from "./tts";
+export { startDictation } from "./dictation";
 export { useAskMatterAI } from "./hooks/use-ask-ai";
 export { useSession } from "./hooks/use-session";
 export { useSubmitResult } from "./hooks/use-submit-result";
@@ -26,6 +30,9 @@ export { useOCR } from "./hooks/use-ocr";
 export { useFiles } from "./hooks/use-files";
 export { useDocs } from "./hooks/use-docs";
 export { useMarkItDown } from "./hooks/use-markitdown";
+export { useTranscribe } from "./hooks/use-transcribe";
+export { useTextToSpeech } from "./hooks/use-tts";
+export { useDictation } from "./hooks/use-dictation";
 export type {
   AiParalegalClientConfig,
   AskAiOptions,
@@ -72,4 +79,16 @@ export type {
   UseSessionConfig,
   UseSessionReturn,
   UseSubmitResultReturn,
+  TranscribeMode,
+  TranscribeOptions,
+  TranscribeResponse,
+  TranscribeResponseData,
+  TranscribeStreamCallbacks,
+  UseTranscribeReturn,
+  TtsOptions,
+  UseTtsReturn,
+  DictationOptions,
+  DictationCallbacks,
+  DictateChunkResponse,
+  UseDictationReturn,
 } from "./types";
