@@ -259,6 +259,62 @@ Standalone async functions for direct API calls.
 
 Submit a result to the host and notify the parent iframe via `postMessage`.
 
+## Available Hooks
+
+| Hook | Description | Key methods |
+|------|-------------|-------------|
+| `useSession` | Token exchange and session lifecycle | `session`, `client` |
+| `useAskMatterAI` | Ask the AI about the current matter | `ask(prompt)` |
+| `useSubmitResult` | Submit tool results back to the agent | `submit(result)` |
+| `useLLM` | LLM text generation with streaming | `generate(prompt, opts)` |
+| `useOCR` | Extract text from images and PDFs | `extract(file, opts)` |
+| `useFiles` | Upload files to the host | `upload(files)` |
+| `useDocs` | Document CRUD operations | `create`, `list`, `get`, `update`, `delete` |
+| `useMarkItDown` | Convert documents to markdown | `convert(file)` |
+| `useTranscribe` | Audio transcription with streaming | `transcribe(file, opts)` |
+| `useTextToSpeech` | Text-to-speech audio generation | `speak(text, opts)` |
+| `useDictation` | Real-time dictation | `start()`, `stop()` |
+| `useCollections` | Document collection management | `create`, `list`, `remove` |
+| `useCollection` | Single collection operations | `get`, `uploadDocuments`, `search` |
+| `useCollectionSearch` | Semantic search within a collection | `search(query)` |
+| `useCollectionQuery` | AI-powered collection Q&A with streaming | `query(prompt)` |
+| `useCollectionTable` | Generate structured tables from collections | `generate(columns)` |
+| `useCollectionAnalyze` | AI analysis of collection documents | `analyze(prompt)` |
+| `useSuggestedPrompts` | Get AI-suggested prompts for a collection | `fetch(collectionId)` |
+| `useContractReview` | Contract review with staged streaming | `review(docId, opts)` |
+| `useStorage` | Persist key-value data via host storage | `get`, `put`, `remove`, `list` |
+
+### Storage Example
+
+```tsx
+import { useSession, useStorage } from "@ftaip/sdk";
+
+function Settings({ client, session }) {
+  const { get, put, loading } = useStorage(client, session);
+
+  const loadPrefs = async () => {
+    const prefs = await get("user-prefs");
+    console.log(prefs);
+  };
+
+  const savePrefs = async () => {
+    await put("user-prefs", { theme: "dark", fontSize: 14 });
+  };
+
+  // Scope to current matter
+  const saveMatterNotes = async () => {
+    await put("notes", "Draft text", { matterId: session.matterId });
+  };
+
+  return (
+    <div>
+      <button onClick={loadPrefs} disabled={loading}>Load</button>
+      <button onClick={savePrefs} disabled={loading}>Save</button>
+    </div>
+  );
+}
+```
+
 ## Security
 
 - **Exchange tokens** are single-use and expire in 5 minutes

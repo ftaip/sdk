@@ -726,3 +726,44 @@ export interface UseCollectionAnalyzeReturn {
   error: Error | null;
   reset: () => void;
 }
+
+// ---------------------------------------------------------------------------
+// Storage
+// ---------------------------------------------------------------------------
+
+export interface StorageItem {
+  key: string;
+  namespace: string;
+  value: unknown;
+  updated_at: string;
+}
+
+export interface StorageListResponse {
+  data: StorageItem[];
+}
+
+export interface StorageShowResponse {
+  data: StorageItem;
+}
+
+export interface StoragePutRequest {
+  key: string;
+  value: unknown;
+  namespace?: string;
+  matter_id?: string;
+}
+
+export interface StorageScope {
+  matterId?: string | null;
+  namespace?: string;
+}
+
+export interface UseStorageReturn {
+  get: (key: string, scope?: StorageScope) => Promise<unknown | null>;
+  put: (key: string, value: unknown, scope?: StorageScope) => Promise<void>;
+  remove: (key: string, scope?: StorageScope) => Promise<void>;
+  list: (scope?: StorageScope) => Promise<StorageItem[]>;
+  loading: boolean;
+  error: Error | null;
+  reset: () => void;
+}

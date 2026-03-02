@@ -40,6 +40,12 @@ export {
   streamCollectionAnalysis,
 } from "./collection-stream";
 export { reviewContract, streamContractReview } from "./contract-review";
+export {
+  getStorageItem,
+  putStorageItem,
+  deleteStorageItem,
+  listStorageItems,
+} from "./storage";
 export { transcribeAudio } from "./transcribe";
 export { streamTranscribe } from "./transcribe-stream";
 export { textToSpeech } from "./tts";
@@ -63,6 +69,7 @@ export { useCollectionTable } from "./hooks/use-collection-table";
 export { useCollectionAnalyze } from "./hooks/use-collection-analyze";
 export { useSuggestedPrompts } from "./hooks/use-suggested-prompts";
 export { useContractReview } from "./hooks/use-contract-review";
+export { useStorage } from "./hooks/use-storage";
 export type {
   AiParalegalClientConfig,
   AskAiOptions,
@@ -152,4 +159,10 @@ export type {
   ContractReviewStage,
   ContractReviewStreamCallbacks,
   UseContractReviewReturn,
+  StorageItem,
+  StorageListResponse,
+  StorageShowResponse,
+  StoragePutRequest,
+  StorageScope,
+  UseStorageReturn,
 } from "./types";
