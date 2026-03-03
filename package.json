@@ -1,6 +1,6 @@
 {
   "name": "@ftaip/sdk",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "React SDK for AI Paralegal — AI-powered legal assistant integration",
   "type": "module",
   "main": "./dist/index.cjs",

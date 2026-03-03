@@ -1,6 +1,7 @@
 export { AiParalegalClient } from "./client";
 export { askAi, askAiWithSession } from "./ask-ai";
 export { exchangeToken } from "./exchange-token";
+export { verifyToken } from "./verify-token";
 export { submitResult } from "./submit-result";
 export { askLlm } from "./llm";
 export { streamLlm } from "./llm-stream";

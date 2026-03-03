@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AiParalegalClient } from '../client';
 import { exchangeToken } from '../exchange-token';
+import { verifyToken } from '../verify-token';
 import type {
   SessionContext,
   UseSessionConfig,
@@ -26,6 +27,12 @@ import type {
  * // Or provide them explicitly (e.g. for local development):
  * const { session, client, loading, error } = useSession({
  *   apiKey: 'your-api-key',
+ *   baseUrl: 'https://your-host.com',
+ * });
+ *
+ * // Or use a long-lived dev token (generated from Admin UI):
+ * const { session, client, loading, error } = useSession({
+ *   devToken: 'your-dev-token',
  *   baseUrl: 'https://your-host.com',
  * });
  *
@@ -65,6 +72,32 @@ export function useSession(config: UseSessionConfig): UseSessionReturn {
       return;
     }
 
+    if (config.devToken) {
+      exchangedRef.current = true;
+      setLoading(true);
+
+      verifyToken(client, config.devToken)
+        .then((response) => {
+          setSession({
+            sessionToken: response.session_token,
+            firmId: response.firm_id,
+            matterId: response.matter_id,
+            parameters: response.parameters ?? {},
+            chatId: response.chat_id ?? null,
+            conversationId: response.conversation_id ?? null,
+            expiresAt: response.expires_at,
+          });
+        })
+        .catch((err) => {
+          setError(err instanceof Error ? err : new Error(String(err)));
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+
+      return;
+    }
+
     const token = params.get('token');
 
     if (!token) {
@@ -92,7 +125,7 @@ export function useSession(config: UseSessionConfig): UseSessionReturn {
       .finally(() => {
         setLoading(false);
       });
-  }, [client, params]);
+  }, [client, params, config.devToken]);
 
   return { session, client, loading, error };
 }

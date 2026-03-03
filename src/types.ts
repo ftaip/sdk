@@ -70,6 +70,16 @@ export interface SessionContext {
 export interface UseSessionConfig {
   apiKey?: string;
   baseUrl?: string;
+  /**
+   * A long-lived session token for local development.
+   *
+   * When provided, the hook skips the normal exchange-token flow
+   * and verifies the token directly with the host to obtain
+   * firm_id, matter_id, and other session context.
+   *
+   * Generate one from the Admin > SDK Applications > App Preview tab.
+   */
+  devToken?: string;
 }
 
 export interface UseSessionReturn {
