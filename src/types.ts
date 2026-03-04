@@ -275,6 +275,7 @@ export interface DocMarkdownResponse {
 
 export interface UseDocsReturn {
   create: (options: DocCreateOptions) => Promise<DocMeta | undefined>;
+  createAndDownload: (options: DocCreateOptions) => Promise<DocMeta | undefined>;
   upload: (files: File[]) => Promise<void>;
   list: () => Promise<void>;
   get: (documentId: string) => Promise<void>;
@@ -733,6 +734,51 @@ export interface UseCollectionAnalyzeReturn {
   statistics: Record<string, unknown> | null;
   loading: boolean;
   streaming: boolean;
+  error: Error | null;
+  reset: () => void;
+}
+
+// ---------------------------------------------------------------------------
+// Template
+// ---------------------------------------------------------------------------
+
+export interface TemplatePlaceholder {
+  name: string;
+  original: string;
+  type: "bracket" | "curly" | "double_curly" | "angle" | "underscore" | "bookmark" | "form_field" | "llm_detected";
+  occurrences: number;
+}
+
+export interface TemplateExtractPlaceholdersResponse {
+  data: {
+    placeholders: TemplatePlaceholder[];
+    filename: string;
+    content: string;
+  };
+}
+
+export interface TemplateMergeResponse {
+  data: DocMeta;
+}
+
+export interface TemplateSuggestion {
+  placeholder: string;
+  value: string;
+  confidence: "high" | "medium" | "low";
+  sources: string[];
+}
+
+export interface TemplateSuggestValuesResponse {
+  data: {
+    suggestions: TemplateSuggestion[];
+  };
+}
+
+export interface UseTemplateReturn {
+  extractPlaceholders: (file: File) => Promise<TemplateExtractPlaceholdersResponse | undefined>;
+  merge: (file: File, values: Record<string, string>, originals?: Record<string, string>) => Promise<DocMeta | undefined>;
+  suggestValues: (placeholders: string[], context: string) => Promise<TemplateSuggestion[] | undefined>;
+  loading: boolean;
   error: Error | null;
   reset: () => void;
 }

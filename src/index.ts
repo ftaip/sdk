@@ -40,6 +40,11 @@ export {
   streamCollectionQuery,
   streamCollectionAnalysis,
 } from "./collection-stream";
+export {
+  extractPlaceholders,
+  mergeTemplate,
+  suggestPlaceholderValues,
+} from "./template";
 export { reviewContract, streamContractReview } from "./contract-review";
 export {
   getStorageItem,
@@ -51,10 +56,47 @@ export { transcribeAudio } from "./transcribe";
 export { streamTranscribe } from "./transcribe-stream";
 export { textToSpeech } from "./tts";
 export { startDictation } from "./dictation";
+
+// ---------------------------------------------------------------------------
+// Utilities
+// ---------------------------------------------------------------------------
+export {
+  downloadBlob,
+  downloadText,
+  fileToDataUrl,
+  dataUrlToFile,
+  formatFileSize,
+  formatDate,
+  formatDateLong,
+  formatCurrency,
+  wordCount,
+  sanitizeFilename,
+  escapeHtml,
+  capitalizeWords,
+  copyToClipboard,
+  stripJsonMarkdown,
+  parseLlmResponse,
+  toCsv,
+  SUPPORTED_DOCUMENT_EXTENSIONS,
+  SUPPORTED_DOCUMENT_MIMES,
+  getFileExtension,
+  isImageFile,
+  isSupportedDocument,
+  validateFile,
+  validateFiles,
+} from "./utils";
+
+// ---------------------------------------------------------------------------
+// React Hooks
+// ---------------------------------------------------------------------------
 export { useAskMatterAI } from "./hooks/use-ask-ai";
 export { useSession } from "./hooks/use-session";
 export { useSubmitResult } from "./hooks/use-submit-result";
 export { useLLM } from "./hooks/use-llm";
+export { useLlmEffect } from "./hooks/use-llm-effect";
+export { useLoadingMessages } from "./hooks/use-loading-messages";
+export { useEditableList } from "./hooks/use-editable-list";
+export { useHistory } from "./hooks/use-history";
 export { useOCR } from "./hooks/use-ocr";
 export { useFiles } from "./hooks/use-files";
 export { useDocs } from "./hooks/use-docs";
@@ -69,8 +111,18 @@ export { useCollectionQuery } from "./hooks/use-collection-query";
 export { useCollectionTable } from "./hooks/use-collection-table";
 export { useCollectionAnalyze } from "./hooks/use-collection-analyze";
 export { useSuggestedPrompts } from "./hooks/use-suggested-prompts";
+export { useTemplate } from "./hooks/use-template";
 export { useContractReview } from "./hooks/use-contract-review";
 export { useStorage } from "./hooks/use-storage";
+
+// ---------------------------------------------------------------------------
+// React Components
+// ---------------------------------------------------------------------------
+export { SessionGate } from "./components/session-gate";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 export type {
   AiParalegalClientConfig,
   AskAiOptions,
@@ -158,6 +210,12 @@ export type {
   ContractReviewResult,
   ContractReviewResponse,
   ContractReviewStage,
+  TemplatePlaceholder,
+  TemplateExtractPlaceholdersResponse,
+  TemplateMergeResponse,
+  TemplateSuggestion,
+  TemplateSuggestValuesResponse,
+  UseTemplateReturn,
   ContractReviewStreamCallbacks,
   UseContractReviewReturn,
   StorageItem,
@@ -167,3 +225,12 @@ export type {
   StorageScope,
   UseStorageReturn,
 } from "./types";
+
+export type {
+  FileValidationOptions,
+  FileValidationResult,
+} from "./utils";
+
+export type { HistoryEntry } from "./hooks/use-history";
+
+export type { SessionGateProps } from "./components/session-gate";

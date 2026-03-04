@@ -178,6 +178,20 @@ export function useDocs(
     [requireSession, run],
   );
 
+  const createAndDownload = useCallback(
+    async (options: DocCreateOptions): Promise<DocMeta | undefined> => {
+      const { client: c, session: s } = requireSession();
+      return run(async () => {
+        const response = await createDoc(c, s.sessionToken, options);
+        const meta = response.data;
+        setDocuments((prev) => [...prev, meta]);
+        await downloadDoc(c, s.sessionToken, meta.id);
+        return meta;
+      });
+    },
+    [requireSession, run],
+  );
+
   const reset = useCallback(() => {
     setDocuments([]);
     setDocument(null);
@@ -188,6 +202,7 @@ export function useDocs(
 
   return {
     create,
+    createAndDownload,
     upload,
     list,
     get,

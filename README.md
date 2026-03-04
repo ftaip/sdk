@@ -13,10 +13,24 @@ npm install @ftaip/sdk
 
 ## Quick Start
 
-When your app is loaded inside the AI Paralegal admin, the host injects `token`, `baseUrl`, and `apiKey` as URL query parameters. The `useSession` hook reads them automatically — zero config needed:
+When your app is loaded inside the AI Paralegal admin, the host injects `token`, `baseUrl`, and `apiKey` as URL query parameters. The `SessionGate` component handles everything:
 
 ```tsx
-import { useSession, useAskMatterAI, useSubmitResult } from "@ftaip/sdk";
+import { SessionGate, useSubmitResult, useAskMatterAI } from "@ftaip/sdk";
+
+function App() {
+  return (
+    <SessionGate>
+      {(session, client) => <ToolPanel session={session} client={client} />}
+    </SessionGate>
+  );
+}
+```
+
+Or use `useSession` directly for more control:
+
+```tsx
+import { useSession } from "@ftaip/sdk";
 
 function App() {
   const { session, client, loading, error } = useSession({});
@@ -138,6 +152,120 @@ function ResultPanel({ client, session }) {
 }
 ```
 
+## Available Hooks
+
+### Core
+
+| Hook | Description | Key methods |
+|------|-------------|-------------|
+| `useSession` | Token exchange and session lifecycle | `session`, `client` |
+| `useAskMatterAI` | Ask the AI about the current matter | `ask(prompt)` |
+| `useSubmitResult` | Submit tool results back to the agent | `submit(result)` |
+| `useLLM` | LLM text generation with streaming and structured output | `generate(prompt, opts)` |
+
+### Documents & Files
+
+| Hook | Description | Key methods |
+|------|-------------|-------------|
+| `useDocs` | Document CRUD, markdown-to-doc, download | `create`, `createAndDownload`, `list`, `get`, `update`, `delete` |
+| `useOCR` | Extract text from images and PDFs | `extract(file, opts)` |
+| `useFiles` | Upload files to the host | `upload(files)` |
+| `useMarkItDown` | Convert documents to markdown | `convert(file)` |
+| `useTemplate` | Template placeholder extraction, merge, value suggestion | `extractPlaceholders`, `merge`, `suggestValues` |
+
+### Audio & Speech
+
+| Hook | Description | Key methods |
+|------|-------------|-------------|
+| `useTranscribe` | Audio transcription with streaming | `transcribe(file, opts)` |
+| `useTextToSpeech` | Text-to-speech audio generation | `speak(text, opts)` |
+| `useDictation` | Real-time dictation | `start()`, `stop()` |
+
+### Document Collections
+
+| Hook | Description | Key methods |
+|------|-------------|-------------|
+| `useCollections` | Document collection management | `create`, `list`, `remove` |
+| `useCollection` | Single collection operations | `get`, `uploadDocuments`, `search` |
+| `useCollectionSearch` | Semantic search within a collection | `search(query)` |
+| `useCollectionQuery` | AI-powered collection Q&A with streaming | `query(prompt)` |
+| `useCollectionTable` | Generate structured tables from collections | `generate(columns)` |
+| `useCollectionAnalyze` | AI analysis of collection documents | `analyze(prompt)` |
+| `useSuggestedPrompts` | Get AI-suggested prompts for a collection | `fetch(collectionId)` |
+
+### Review & Storage
+
+| Hook | Description | Key methods |
+|------|-------------|-------------|
+| `useContractReview` | Contract review with staged streaming | `review(docId, opts)` |
+| `useStorage` | Persist key-value data via host storage | `get`, `put`, `remove`, `list` |
+
+### Developer Experience
+
+| Hook / Component | Description | Key methods |
+|------|-------------|-------------|
+| `SessionGate` | Component that handles session loading/error/no-session states | `children(session, client)` |
+| `useLlmEffect` | React to LLM completion with callbacks | `onSuccess(text, structured)` |
+| `useLoadingMessages` | Rotating status messages during long operations | Returns current message string |
+| `useEditableList` | Generic editable list state (add/update/remove) | `items`, `addItem`, `updateItem`, `removeItem` |
+| `useHistory` | In-memory prompt/result history | `history`, `pushCurrent`, `lastPrompt` |
+
+## Utility Functions
+
+All utilities are imported directly from `@ftaip/sdk`:
+
+```tsx
+import { downloadBlob, formatFileSize, parseLlmResponse } from "@ftaip/sdk";
+```
+
+### File Operations
+
+| Function | Description |
+|----------|-------------|
+| `downloadBlob(content, filename, mimeType?)` | Trigger browser download from Blob or string |
+| `downloadText(content, filename, mimeType?)` | Download string as text file |
+| `fileToDataUrl(file)` | Convert File to base64 data URL |
+| `dataUrlToFile(dataUrl, filename, mimeType?)` | Convert data URL back to File |
+
+### Formatting
+
+| Function | Description |
+|----------|-------------|
+| `formatFileSize(bytes)` | `1.2 MB`, `340 KB`, etc. |
+| `formatDate(date, locale?, options?)` | Locale-aware date formatting |
+| `formatDateLong(date?, locale?)` | `04 March 2025` for document headers |
+| `formatCurrency(amount, currency?, locale?)` | `$1,234.56` (defaults to AUD) |
+| `wordCount(text)` | Count words in a string |
+| `sanitizeFilename(name, maxLength?)` | Filesystem-safe filename |
+| `escapeHtml(text)` | Escape HTML entities |
+| `capitalizeWords(text)` | Title Case each word |
+
+### LLM Response Parsing
+
+| Function | Description |
+|----------|-------------|
+| `parseLlmResponse<T>(response)` | Extract structured data from LLM responses (handles `structured`, text JSON, markdown fences) |
+| `stripJsonMarkdown(text)` | Remove ` ```json ` / ` ``` ` fences from LLM text |
+
+### Clipboard & Export
+
+| Function | Description |
+|----------|-------------|
+| `copyToClipboard(content, { asHtml? })` | Copy with optional rich HTML (preserves formatting in Word) |
+| `toCsv(rows, columns, headerRows?)` | Build CSV string from typed data |
+
+### File Validation
+
+| Function / Constant | Description |
+|----------|-------------|
+| `validateFile(file, options?)` | Validate file size and type |
+| `validateFiles(files, options?)` | Validate multiple files, returns `{ valid, errors }` |
+| `isImageFile(file)` | Check if file is an image |
+| `isSupportedDocument(filename)` | Check against platform-supported extensions |
+| `getFileExtension(filename)` | Get lowercase extension with dot |
+| `SUPPORTED_DOCUMENT_EXTENSIONS` | All supported extensions |
+| `SUPPORTED_DOCUMENT_MIMES` | All supported MIME types |
+
 ## Standalone Functions
 
 ### Token Exchange
@@ -213,106 +341,6 @@ const response = await submitResult(client, session.session_token, {
          │                         │<──────────────────────────│
          │                         │  { data: ... }            │
          │                         │──────────────────────────>│
-```
-
-## API Reference
-
-### `AiParalegalClient`
-
-| Option    | Type     | Required | Description                                              |
-| --------- | -------- | -------- | -------------------------------------------------------- |
-| `baseUrl` | `string` | Yes      | Base URL of your AI Paralegal instance (must be HTTP/HTTPS) |
-| `apiKey`  | `string` | No       | SDK API key (needed for API-key auth and token exchange) |
-
-### `useSession(config)`
-
-Automatically reads `token`, `baseUrl`, and `apiKey` from the URL and exchanges the token for a session.
-
-| Option    | Type     | Required | Description                                           |
-| --------- | -------- | -------- | ----------------------------------------------------- |
-| `apiKey`  | `string` | No       | Override API key (defaults to URL parameter)          |
-| `baseUrl` | `string` | No       | Override base URL (defaults to URL parameter)         |
-
-**Returns:** `{ session, client, loading, error }`
-
-### `useAskMatterAI(client, options)`
-
-React hook for sending prompts to the AI. Accepts either `AskAiOptions` (API key mode) or `SessionContext` (session mode).
-
-**Returns:** `{ ask, data, loading, error, reset }`
-
-### `useSubmitResult(client, session)`
-
-React hook for submitting tool results back to the AI agent.
-
-**Returns:** `{ submit, loading, error, submitted, response }`
-
-### `exchangeToken(client, token)`
-
-Exchange a short-lived token for a session. Returns `TokenExchangeResponse`.
-
-### `askAi(client, request)` / `askAiWithSession(client, sessionToken, request)`
-
-Standalone async functions for direct API calls.
-
-### `submitResult(client, sessionToken, result)`
-
-Submit a result to the host and notify the parent iframe via `postMessage`.
-
-## Available Hooks
-
-| Hook | Description | Key methods |
-|------|-------------|-------------|
-| `useSession` | Token exchange and session lifecycle | `session`, `client` |
-| `useAskMatterAI` | Ask the AI about the current matter | `ask(prompt)` |
-| `useSubmitResult` | Submit tool results back to the agent | `submit(result)` |
-| `useLLM` | LLM text generation with streaming | `generate(prompt, opts)` |
-| `useOCR` | Extract text from images and PDFs | `extract(file, opts)` |
-| `useFiles` | Upload files to the host | `upload(files)` |
-| `useDocs` | Document CRUD operations | `create`, `list`, `get`, `update`, `delete` |
-| `useMarkItDown` | Convert documents to markdown | `convert(file)` |
-| `useTranscribe` | Audio transcription with streaming | `transcribe(file, opts)` |
-| `useTextToSpeech` | Text-to-speech audio generation | `speak(text, opts)` |
-| `useDictation` | Real-time dictation | `start()`, `stop()` |
-| `useCollections` | Document collection management | `create`, `list`, `remove` |
-| `useCollection` | Single collection operations | `get`, `uploadDocuments`, `search` |
-| `useCollectionSearch` | Semantic search within a collection | `search(query)` |
-| `useCollectionQuery` | AI-powered collection Q&A with streaming | `query(prompt)` |
-| `useCollectionTable` | Generate structured tables from collections | `generate(columns)` |
-| `useCollectionAnalyze` | AI analysis of collection documents | `analyze(prompt)` |
-| `useSuggestedPrompts` | Get AI-suggested prompts for a collection | `fetch(collectionId)` |
-| `useContractReview` | Contract review with staged streaming | `review(docId, opts)` |
-| `useStorage` | Persist key-value data via host storage | `get`, `put`, `remove`, `list` |
-
-### Storage Example
-
-```tsx
-import { useSession, useStorage } from "@ftaip/sdk";
-
-function Settings({ client, session }) {
-  const { get, put, loading } = useStorage(client, session);
-
-  const loadPrefs = async () => {
-    const prefs = await get("user-prefs");
-    console.log(prefs);
-  };
-
-  const savePrefs = async () => {
-    await put("user-prefs", { theme: "dark", fontSize: 14 });
-  };
-
-  // Scope to current matter
-  const saveMatterNotes = async () => {
-    await put("notes", "Draft text", { matterId: session.matterId });
-  };
-
-  return (
-    <div>
-      <button onClick={loadPrefs} disabled={loading}>Load</button>
-      <button onClick={savePrefs} disabled={loading}>Save</button>
-    </div>
-  );
-}
 ```
 
 ## Security
