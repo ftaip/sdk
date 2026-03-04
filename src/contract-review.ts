@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type {
   ContractReviewResponse,
   ContractReviewResult,
@@ -39,11 +40,7 @@ export async function reviewContract(
   );
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Contract review failed with status ${response.status}`,
-    );
+    await throwApiError(response, "Contract review failed");
   }
 
   return response.json() as Promise<ContractReviewResponse>;
@@ -80,11 +77,7 @@ export async function streamContractReview(
   );
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Contract review stream failed with status ${response.status}`,
-    );
+    await throwApiError(response, "Contract review stream failed");
   }
 
   const contentType = response.headers.get("content-type") ?? "";

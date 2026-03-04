@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { OcrExtraction, OcrStreamCallbacks } from "./types";
 import { consumeSseStream } from "./sse";
 
@@ -32,11 +33,7 @@ export async function streamOcr(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `OCR stream failed with status ${response.status}`,
-    );
+    await throwApiError(response, "OCR stream failed");
   }
 
   await consumeSseStream(

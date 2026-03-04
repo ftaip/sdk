@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type {
   CollectionAnalyzeStreamCallbacks,
   CollectionQueryStreamCallbacks,
@@ -40,11 +41,7 @@ export async function streamCollectionQuery(
   );
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Collection query stream failed with status ${response.status}`,
-    );
+    await throwApiError(response, "Collection query stream failed");
   }
 
   const contentType = response.headers.get("content-type") ?? "";
@@ -120,11 +117,7 @@ export async function streamCollectionAnalysis(
   );
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Collection analyze stream failed with status ${response.status}`,
-    );
+    await throwApiError(response, "Collection analyze stream failed");
   }
 
   const contentType = response.headers.get("content-type") ?? "";

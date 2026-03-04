@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { askAi, askAiWithSession } from "../ask-ai";
 import { AiParalegalClient } from "../client";
+import { ApiError } from "../errors";
 
 const client = new AiParalegalClient({
   baseUrl: "https://example.com",
@@ -101,12 +102,18 @@ describe("askAi", () => {
     ).rejects.toThrow("Invalid prompt");
   });
 
-  it("falls back to status text when response body has no message", async () => {
+  it("falls back to unknown code when response body is unparseable", async () => {
     mockFetchJsonFailure(500);
 
-    await expect(
-      askAi(client, { prompt: "bad", firm_id: "f", matter_id: "m" }),
-    ).rejects.toThrow("Request failed with status 500");
+    try {
+      await askAi(client, { prompt: "bad", firm_id: "f", matter_id: "m" });
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(ApiError.is(err)).toBe(true);
+      const apiErr = err as ApiError;
+      expect(apiErr.code).toBe("unknown");
+      expect(apiErr.status).toBe(500);
+    }
   });
 });
 
@@ -158,11 +165,17 @@ describe("askAiWithSession", () => {
     ).rejects.toThrow("Unauthorised");
   });
 
-  it("falls back to status text when response body has no message", async () => {
+  it("falls back to unknown code when response body is unparseable", async () => {
     mockFetchJsonFailure(503);
 
-    await expect(
-      askAiWithSession(client, "tok", { prompt: "Q" }),
-    ).rejects.toThrow("Request failed with status 503");
+    try {
+      await askAiWithSession(client, "tok", { prompt: "Q" });
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(ApiError.is(err)).toBe(true);
+      const apiErr = err as ApiError;
+      expect(apiErr.code).toBe("unknown");
+      expect(apiErr.status).toBe(503);
+    }
   });
 });

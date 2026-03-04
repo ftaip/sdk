@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { FilesResponse } from "./types";
 
 /**
@@ -23,11 +24,7 @@ export async function uploadFiles(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `File upload failed with status ${response.status}`,
-    );
+    await throwApiError(response, "File upload failed");
   }
 
   return response.json() as Promise<FilesResponse>;

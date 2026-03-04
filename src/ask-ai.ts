@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { AskAiRequest, AskAiResponse, SessionAskAiRequest } from "./types";
 
 /**
@@ -15,11 +16,7 @@ export async function askAi(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Request failed with status ${response.status}`,
-    );
+    await throwApiError(response, "AI request failed");
   }
 
   return response.json() as Promise<AskAiResponse>;
@@ -43,11 +40,7 @@ export async function askAiWithSession(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Request failed with status ${response.status}`,
-    );
+    await throwApiError(response, "AI request failed");
   }
 
   return response.json() as Promise<AskAiResponse>;

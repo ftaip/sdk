@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { TranscribeOptions, TranscribeResponse } from "./types";
 
 /**
@@ -39,11 +40,7 @@ export async function transcribeAudio(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Transcription failed with status ${response.status}`,
-    );
+    await throwApiError(response, "Transcription failed");
   }
 
   return response.json() as Promise<TranscribeResponse>;

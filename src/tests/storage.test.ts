@@ -6,6 +6,7 @@ import {
   listStorageItems,
 } from "../storage";
 import { AiParalegalClient } from "../client";
+import { ApiError } from "../errors";
 
 const client = new AiParalegalClient({ baseUrl: "https://example.com" });
 const sessionToken = "sess-tok";
@@ -84,12 +85,18 @@ describe("getStorageItem", () => {
     ).rejects.toThrow("Internal error");
   });
 
-  it("falls back to status code when response body has no message", async () => {
+  it("falls back to unknown code when response body is unparseable", async () => {
     mockFetchJsonFailure(500);
 
-    await expect(
-      getStorageItem(client, sessionToken, "theme"),
-    ).rejects.toThrow("Storage get failed with status 500");
+    try {
+      await getStorageItem(client, sessionToken, "theme");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(ApiError.is(err)).toBe(true);
+      const apiErr = err as ApiError;
+      expect(apiErr.code).toBe("unknown");
+      expect(apiErr.status).toBe(500);
+    }
   });
 
   it("encodes special characters in the key", async () => {

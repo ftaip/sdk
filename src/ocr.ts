@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { OcrResponse } from "./types";
 
 /**
@@ -23,11 +24,7 @@ export async function extractText(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `OCR request failed with status ${response.status}`,
-    );
+    await throwApiError(response, "OCR request failed");
   }
 
   return response.json() as Promise<OcrResponse>;

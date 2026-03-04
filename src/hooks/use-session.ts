@@ -43,7 +43,7 @@ import type {
  * // client is configured with the host's baseUrl
  * ```
  */
-export function useSession(config: UseSessionConfig): UseSessionReturn {
+export function useSession<TParams = Record<string, unknown>>(config: UseSessionConfig): UseSessionReturn<TParams> {
   const params = useMemo(
     () => new URLSearchParams(window.location.search),
     [],
@@ -62,7 +62,7 @@ export function useSession(config: UseSessionConfig): UseSessionReturn {
     });
   }, [resolvedBaseUrl, resolvedApiKey]);
 
-  const [session, setSession] = useState<SessionContext | null>(null);
+  const [session, setSession] = useState<SessionContext<TParams> | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const exchangedRef = useRef(false);
@@ -82,7 +82,7 @@ export function useSession(config: UseSessionConfig): UseSessionReturn {
             sessionToken: response.session_token,
             firmId: response.firm_id,
             matterId: response.matter_id,
-            parameters: response.parameters ?? {},
+            parameters: (response.parameters ?? {}) as TParams,
             chatId: response.chat_id ?? null,
             conversationId: response.conversation_id ?? null,
             expiresAt: response.expires_at,
@@ -113,7 +113,7 @@ export function useSession(config: UseSessionConfig): UseSessionReturn {
           sessionToken: response.session_token,
           firmId: response.firm_id,
           matterId: response.matter_id,
-          parameters: response.parameters ?? {},
+          parameters: (response.parameters ?? {}) as TParams,
           chatId: response.chat_id ?? null,
           conversationId: response.conversation_id ?? null,
           expiresAt: response.expires_at,

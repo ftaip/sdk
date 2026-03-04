@@ -5,6 +5,16 @@ React SDK for AI Paralegal — lets third-party apps embed inside the AI Paraleg
 [![npm version](https://img.shields.io/npm/v/@ftaip/sdk.svg)](https://www.npmjs.com/package/@ftaip/sdk)
 [![license](https://img.shields.io/npm/l/@ftaip/sdk.svg)](https://github.com/ftaip/sdk/blob/main/LICENSE)
 
+## Quick Scaffold
+
+Create a new SDK tool project with a single command:
+
+```bash
+npx @ftaip/create-app
+```
+
+This interactive CLI will prompt for your project name, description, and which capabilities you need, then generate a complete Vite + React + TypeScript project with the selected hooks pre-wired.
+
 ## Installation
 
 ```bash
@@ -84,7 +94,7 @@ function AskPanel({
 }
 ```
 
-For local development you can override the URL params:
+For local development you can override the URL params or use a dev token (see [Local Development](#local-development)).
 
 ```tsx
 const { session, client } = useSession({
@@ -126,6 +136,55 @@ function AskAI() {
     </div>
   );
 }
+```
+
+## Local Development
+
+To develop SDK apps locally without the iframe exchange flow, use a **dev token**:
+
+1. In AI Paralegal: **Admin → SDK Applications** → your app → **App Preview** tab
+2. Click **Generate Dev Token**, select firm and matter
+3. Copy the token (expires in 30 days)
+4. In your app, configure `useSession`:
+
+```tsx
+const { session, client } = useSession({
+  devToken: import.meta.env.VITE_DEV_TOKEN,
+  baseUrl: import.meta.env.VITE_BASE_URL,
+  apiKey: import.meta.env.VITE_API_KEY,
+});
+```
+
+The [kitchen sink app](https://github.com/ftaip/ftaip-kitchen-sink) includes a full setup guide with `.env.example`, 10 working examples of every SDK capability, and troubleshooting.
+
+## Developing the SDK
+
+To work on the SDK source and test against an app:
+
+```bash
+# In the SDK package
+cd aiparalegalsdk
+npm run build
+npm link
+
+# In your app
+cd your-app
+npm link @ftaip/sdk
+```
+
+After SDK changes, rebuild:
+
+```bash
+cd aiparalegalsdk && npm run build
+```
+
+Use `npm run dev` in the SDK package for watch mode during active development.
+
+To revert to the published package:
+
+```bash
+npm unlink @ftaip/sdk
+npm install @ftaip/sdk
 ```
 
 ## Submitting Results
@@ -342,6 +401,57 @@ const response = await submitResult(client, session.session_token, {
          │                         │  { data: ... }            │
          │                         │──────────────────────────>│
 ```
+
+## API Reference
+
+| Category | Exports |
+|----------|---------|
+| **Hooks** | `useSession`, `useAskMatterAI`, `useSubmitResult`, `useLLM`, `useOCR`, `useDocs`, `useFiles`, `useCollections`, `useTemplate`, `useStorage`, `useContractReview`, `useHealth`, and more |
+| **Components** | `SessionGate`, `DevToolsProvider`, `DevToolsPanel` |
+| **Classes** | `AiParalegalClient`, `ApiError` |
+| **Functions** | `exchangeToken`, `verifyToken`, `askAi`, `askAiWithSession`, `submitResult`, `checkHealth`, and capability-specific functions (e.g. `extractText`, `uploadFiles`) |
+| **Types** | `SessionContext`, `AiParalegalClientConfig`, `AskAiRequest`, and many capability-specific types |
+
+See the tables below for detailed hook and utility documentation.
+
+## Error Handling
+
+API failures throw `ApiError`, which extends `Error` with structured fields for programmatic handling:
+
+```tsx
+import { useSession, ApiError } from "@ftaip/sdk";
+
+const { error } = useSession({});
+
+// Check error type
+if (ApiError.is(error)) {
+  console.error(error.code, error.status, error.details);
+  if (error.code === "rate_limit_exceeded") {
+    // Retry with backoff
+  }
+}
+```
+
+Properties:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `code` | `string` | Machine-readable error code (e.g. `invalid_token`, `rate_limit_exceeded`) |
+| `message` | `string` | Human-readable error message |
+| `status` | `number` | HTTP status code |
+| `details` | `Record<string, string[]> \| null` | Optional validation or field-level details |
+
+Use `ApiError.is(error)` as a type guard in `catch` blocks.
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "No exchange token provided" | Ensure the host passes `?token=...&baseUrl=...&apiKey=...` in the iframe URL, or set `devToken`, `baseUrl`, and optionally `apiKey` for local dev |
+| "Token verification failed" / 401 | Dev token may be expired (30 days). Generate a new one from Admin → SDK Applications → App Preview |
+| "apiKey is required" | Use API key for token exchange; dev token flow does not require it for verify, but you may need it for other flows |
+| CORS errors | Ensure the host allows your dev origin (e.g. `http://localhost:5173`) in CORS config |
+| Changes to .env not reflected | Restart the Vite dev server; env vars are read at startup |
 
 ## Security
 

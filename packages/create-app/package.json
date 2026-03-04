@@ -1,0 +1,32 @@
+{
+  "name": "@ftaip/create-app",
+  "version": "0.1.0",
+  "description": "Scaffold a new AI Paralegal SDK tool in seconds",
+  "type": "module",
+  "bin": {
+    "create-ftaip-app": "./dist/index.js",
+    "@ftaip/create-app": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^7.0.0"
+  },
+  "keywords": [
+    "ai-paralegal",
+    "sdk",
+    "scaffold",
+    "cli",
+    "create-app"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

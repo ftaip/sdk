@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type {
   TranscribeOptions,
   TranscribeResponse,
@@ -52,11 +53,7 @@ export async function streamTranscribe(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Transcription stream failed with status ${response.status}`,
-    );
+    await throwApiError(response, "Transcription stream failed");
   }
 
   await consumeSseStream(

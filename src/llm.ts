@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { LlmRequestOptions, LlmResponse } from "./types";
 
 /**
@@ -65,11 +66,7 @@ export async function askLlm(
   }
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `LLM request failed with status ${response.status}`,
-    );
+    await throwApiError(response, "LLM request failed");
   }
 
   return response.json() as Promise<LlmResponse>;

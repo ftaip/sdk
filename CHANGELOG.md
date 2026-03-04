@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.8.0] - 2026-03-04
+
+### Added
+
+- **Structured error handling** — `ApiError` class with typed `code`, `status`, and `details` properties; `throwApiError` helper for consistent error parsing across all API functions
+- **Health check** — `checkHealth()` function and `useHealth()` hook for monitoring API availability and capability status
+- **Host events** — `useHostEvents()` hook for listening to `postMessage` events from the parent host window
+- **DevTools panel** — `DevToolsProvider` and `DevToolsPanel` components for in-browser debugging with Session, Network, and Info tabs (development mode only)
+- **CLI scaffolding** — `@ftaip/create-app` package (`npx @ftaip/create-app`) to scaffold new SDK tool projects with interactive prompts, capability selection, and pre-wired hooks
+- **TypeScript generics** — `SessionContext<TParams>` and `UseSessionReturn<TParams>` now accept a generic parameter for typed session parameters; `HookState<T>` discriminated union for standardised hook state handling
+- **SessionGate improvements** — `theme` prop for custom styling, `retry` callback on error states, `onSessionReady` lifecycle callback
+- **Test coverage** — 140 tests across 14 test files covering all hooks and API functions (up from 79 tests)
+
+### Changed
+
+- All API functions now throw `ApiError` instead of plain `Error` for non-OK responses, providing `code`, `status`, and `details` from the structured error response
+- `SessionGate` default loading and error UIs improved with better styling and a retry button
+
+## [0.7.0] - 2026-03-02
+
+### Added
+
+- Storage hooks and API functions (released as 0.7.0 without changelog entry)
+
 ## [0.6.0] - 2026-03-02
 
 ### Added

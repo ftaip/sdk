@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type {
   DocCreateOptions,
   DocCreateResponse,
@@ -11,11 +12,7 @@ import type {
 
 async function throwOnError(response: Response, action: string): Promise<void> {
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `${action} failed with status ${response.status}`,
-    );
+    await throwApiError(response, action);
   }
 }
 

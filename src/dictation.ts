@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type {
   DictateChunkResponse,
   DictationCallbacks,
@@ -170,11 +171,7 @@ export async function startDictation(
       });
 
       if (!response.ok) {
-        const body = await response.json().catch(() => ({}));
-        throw new Error(
-          (body as { message?: string }).message ??
-            `Dictation chunk failed with status ${response.status}`,
-        );
+        await throwApiError(response, "Dictation chunk failed");
       }
 
       const result = (await response.json()) as DictateChunkResponse;

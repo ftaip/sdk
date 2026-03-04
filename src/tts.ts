@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { TtsOptions } from "./types";
 
 /**
@@ -26,11 +27,7 @@ export async function textToSpeech(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Text-to-speech failed with status ${response.status}`,
-    );
+    await throwApiError(response, "Text-to-speech failed");
   }
 
   return response.blob();

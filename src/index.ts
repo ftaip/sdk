@@ -1,4 +1,6 @@
 export { AiParalegalClient } from "./client";
+export { ApiError, throwApiError } from "./errors";
+export type { SdkApiErrorBody } from "./errors";
 export { askAi, askAiWithSession } from "./ask-ai";
 export { exchangeToken } from "./exchange-token";
 export { verifyToken } from "./verify-token";
@@ -52,6 +54,7 @@ export {
   deleteStorageItem,
   listStorageItems,
 } from "./storage";
+export { checkHealth } from "./health";
 export { transcribeAudio } from "./transcribe";
 export { streamTranscribe } from "./transcribe-stream";
 export { textToSpeech } from "./tts";
@@ -114,11 +117,15 @@ export { useSuggestedPrompts } from "./hooks/use-suggested-prompts";
 export { useTemplate } from "./hooks/use-template";
 export { useContractReview } from "./hooks/use-contract-review";
 export { useStorage } from "./hooks/use-storage";
+export { useHealth } from "./hooks/use-health";
+export { useHostEvents } from "./hooks/use-host-events";
 
 // ---------------------------------------------------------------------------
 // React Components
 // ---------------------------------------------------------------------------
 export { SessionGate } from "./components/session-gate";
+export { DevToolsProvider } from "./components/dev-tools-provider";
+export { DevToolsPanel } from "./components/dev-tools";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -156,6 +163,7 @@ export type {
   OcrResponseData,
   OcrStreamCallbacks,
   SessionAskAiRequest,
+  HookState,
   SessionContext,
   SubmitResultResponse,
   TokenExchangeResponse,
@@ -233,4 +241,10 @@ export type {
 
 export type { HistoryEntry } from "./hooks/use-history";
 
-export type { SessionGateProps } from "./components/session-gate";
+export type { SessionGateProps, SessionGateTheme } from "./components/session-gate";
+export type { DevToolsEntry, DevToolsContextValue } from "./components/dev-tools-provider";
+export type { DevToolsPanelProps } from "./components/dev-tools";
+
+export type { HealthCheckResponse } from "./health";
+export type { UseHealthReturn } from "./hooks/use-health";
+export type { SdkHostEvent, HostEventHandler } from "./hooks/use-host-events";

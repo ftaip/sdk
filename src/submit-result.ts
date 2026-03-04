@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { SubmitResultResponse } from "./types";
 
 export async function submitResult(
@@ -13,10 +14,7 @@ export async function submitResult(
   });
 
   if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({}));
-    throw new Error(
-      errorBody.message || `Failed to submit result (${response.status})`,
-    );
+    await throwApiError(response, "Failed to submit result");
   }
 
   const data: SubmitResultResponse = await response.json();

@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { MarkItDownResponse } from "./types";
 
 /**
@@ -26,11 +27,7 @@ export async function convertToMarkdown(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `MarkItDown conversion failed with status ${response.status}`,
-    );
+    await throwApiError(response, "MarkItDown conversion failed");
   }
 
   return response.json() as Promise<MarkItDownResponse>;

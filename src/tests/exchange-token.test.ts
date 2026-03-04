@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { exchangeToken } from "../exchange-token";
 import { AiParalegalClient } from "../client";
+import { ApiError } from "../errors";
 
 const client = new AiParalegalClient({
   baseUrl: "https://example.com",
@@ -61,19 +62,36 @@ describe("exchangeToken", () => {
     expect(result).toEqual(mockTokenResponse);
   });
 
-  it("throws with the server message on non-OK response", async () => {
-    mockFetch(401, { message: "Invalid exchange token" });
+  it("throws an ApiError with error_code on non-OK response", async () => {
+    mockFetch(401, {
+      error_code: "token_invalid",
+      message: "Invalid exchange token",
+    });
 
-    await expect(exchangeToken(client, "bad-token")).rejects.toThrow(
-      "Invalid exchange token",
-    );
+    try {
+      await exchangeToken(client, "bad-token");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(ApiError.is(err)).toBe(true);
+      const apiErr = err as ApiError;
+      expect(apiErr.code).toBe("token_invalid");
+      expect(apiErr.message).toBe("Invalid exchange token");
+      expect(apiErr.status).toBe(401);
+    }
   });
 
-  it("falls back to status text when response body has no message", async () => {
+  it("falls back to unknown code when response body is unparseable", async () => {
     mockFetchJsonFailure(500);
 
-    await expect(exchangeToken(client, "bad-token")).rejects.toThrow(
-      "Token exchange failed with status 500",
-    );
+    try {
+      await exchangeToken(client, "bad-token");
+      expect.unreachable("should have thrown");
+    } catch (err) {
+      expect(ApiError.is(err)).toBe(true);
+      const apiErr = err as ApiError;
+      expect(apiErr.code).toBe("unknown");
+      expect(apiErr.message).toBe("Token exchange failed (500)");
+      expect(apiErr.status).toBe(500);
+    }
   });
 });

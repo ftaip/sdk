@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { TokenExchangeResponse } from "./types";
 
 /**
@@ -18,11 +19,7 @@ export async function exchangeToken(
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `Token exchange failed with status ${response.status}`,
-    );
+    await throwApiError(response, "Token exchange failed");
   }
 
   return response.json() as Promise<TokenExchangeResponse>;

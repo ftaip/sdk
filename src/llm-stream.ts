@@ -1,4 +1,5 @@
 import type { AiParalegalClient } from "./client";
+import { throwApiError } from "./errors";
 import type { LlmRequestOptions, LlmResponse, LlmStreamCallbacks } from "./types";
 import { consumeSseStream } from "./sse";
 
@@ -78,11 +79,7 @@ export async function streamLlm(
   }
 
   if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ??
-        `LLM stream failed with status ${response.status}`,
-    );
+    await throwApiError(response, "LLM stream failed");
   }
 
   const contentType = response.headers.get("content-type") ?? "";

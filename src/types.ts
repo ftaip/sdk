@@ -57,11 +57,11 @@ export interface TokenExchangeResponse {
   expires_at: string;
 }
 
-export interface SessionContext {
+export interface SessionContext<TParams = Record<string, unknown>> {
   sessionToken: string;
   firmId: string;
   matterId: string;
-  parameters: Record<string, unknown>;
+  parameters: TParams;
   chatId: string | null;
   conversationId: string | null;
   expiresAt: string;
@@ -82,8 +82,8 @@ export interface UseSessionConfig {
   devToken?: string;
 }
 
-export interface UseSessionReturn {
-  session: SessionContext | null;
+export interface UseSessionReturn<TParams = Record<string, unknown>> {
+  session: SessionContext<TParams> | null;
   client: import('./client').AiParalegalClient | null;
   loading: boolean;
   error: Error | null;
@@ -823,3 +823,9 @@ export interface UseStorageReturn {
   error: Error | null;
   reset: () => void;
 }
+
+export type HookState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error };
